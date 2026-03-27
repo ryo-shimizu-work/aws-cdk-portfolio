@@ -1,0 +1,14 @@
+# aws_resource_inventory 設定ファイル
+# 使い方: python main.py --config config.yaml
+
+profile: my-profile
+regions:
+  - ap-northeast-1
+  - us-east-1
+# exclude_services:
+#   - IAM Roles
+#   - IAM Users
+format: markdown
+estimate: true
+workers: 8
+# output: inventory.md
