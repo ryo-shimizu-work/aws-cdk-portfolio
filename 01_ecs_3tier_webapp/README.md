@@ -36,10 +36,13 @@ ECS 3層 Web アプリ。全構成の基礎。
  - インターネット経由（NAT Gateway）でDocerHubからイメージを取得
  - インターネット経由（NAT Gateway）でSecretsManager／CloudWatchLogsにアクセス
 
-<!-- 改造後に追加
-### v1.1 xxxxxxxxx
+### v1.1 Route53で作成したドメインでのルーティング
 ![v1.1](./images/01_ecs_3tier_webapp_v1.1.png)
 
+**ポイント**
+ - Aレコードに設定するドメインはサブドメインだけを指定すればよい。（`parameter.ts`に記載）
+
+<!-- 改造後に追加
 ### v1.2 xxxxxxxxx
 ![v1.2](./images/01_ecs_3tier_webapp_v1.2.png)
 -->

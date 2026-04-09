@@ -6,8 +6,12 @@ import { ComputeConstruct } from "./constructs/compute";
 
 export interface AppStackProps extends StackProps {
   readonly envName: string;
+  readonly accontId: string;
+  readonly region: string;
   /** サンプルアプリへのアクセスを許可するCIDR */
   allowedCidr: string[];
+  hostedZone: string;
+  domainName: string;
 }
 
 /**
@@ -41,12 +45,14 @@ export class AppStack extends Stack {
       ecsSg: network.ecsSg,
       dbSecret: database.secret,
       dbHost: database.cluster.clusterEndpoint.hostname,
+      hostedZone: props.hostedZone,
+      domainName: props.domainName
     });
 
     // デプロイ後に確認する URL
-    new CfnOutput(this, "AlbDnsName", {
-      value: `http://${compute.alb.loadBalancerDnsName}`,
-      description: "ALB DNS Name",
+    new CfnOutput(this, "DnsName", {
+      value: `http://${props.domainName}.${props.hostedZone}`,
+      description: "DNS Name",
     });
   }
 }

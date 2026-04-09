@@ -1,4 +1,4 @@
-import { Duration } from "aws-cdk-lib";
+import { Duration, RemovalPolicy } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -6,6 +6,8 @@ import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as logs from "aws-cdk-lib/aws-logs";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as route53targets from "aws-cdk-lib/aws-route53-targets";
 
 export interface ComputeProps {
   readonly envName: string;
@@ -15,6 +17,8 @@ export interface ComputeProps {
   readonly dbSecret: secretsmanager.ISecret;
   // DB 接続先ホスト (DatabaseConstruct.cluster.clusterEndpoint.hostname)
   readonly dbHost: string;
+  readonly hostedZone: string;
+  readonly domainName: string;
 }
 
 /**
@@ -62,6 +66,7 @@ export class ComputeConstruct extends Construct {
     const logGroup = new logs.LogGroup(this, "AppLogGroup", {
       logGroupName: `/ecs/${props.envName}/app`,
       retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
@@ -110,6 +115,21 @@ export class ComputeConstruct extends Construct {
       port: 80,
       // 本番では HTTPS リスナー + ACM 証明書を使う。HTTP は 443 にリダイレクト。
       open: true,
+    });
+
+    // Route53
+    const hostedZone = route53.HostedZone.fromLookup(this, "HostedZone", {
+      domainName: props.hostedZone,
+    });
+
+    new route53.ARecord(this, "AliasRecord", {
+      zone: hostedZone,
+      recordName: props.domainName,
+      target: route53.RecordTarget.fromAlias(
+        new route53targets.LoadBalancerTarget(this.alb, {
+          evaluateTargetHealth: true,
+        }),
+      ),
     });
 
     // ECS Fargate Service
