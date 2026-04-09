@@ -21,6 +21,25 @@ ECS 3層 Web アプリ。全構成の基礎。
 
 ## ステータス
 
-- [ ] 設計
-- [ ] 実装
-- [ ] 検証
+- [x] 設計
+- [x] 実装
+- [x] 検証
+
+## 構成図
+
+> drawioファイルは `images/` に保管。改造のたびにPNGエクスポートして追加する。
+
+### v1.0 ベース構成
+![v1.0](./images/01_ecs_3tier_webapp_v1.0.png)
+
+**ポイント**
+ - インターネット経由（NAT Gateway）でDocerHubからイメージを取得
+ - インターネット経由（NAT Gateway）でSecretsManager／CloudWatchLogsにアクセス
+
+<!-- 改造後に追加
+### v1.1 xxxxxxxxx
+![v1.1](./images/01_ecs_3tier_webapp_v1.1.png)
+
+### v1.2 xxxxxxxxx
+![v1.2](./images/01_ecs_3tier_webapp_v1.2.png)
+-->
