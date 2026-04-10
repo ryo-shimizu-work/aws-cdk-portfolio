@@ -47,3 +47,9 @@ ECS 3層 Web アプリ。全構成の基礎。
 
 **ポイント**
  - ACMはALBのHTTPSリスナーにアタッチする。
+
+### v1.3 イメージ取得元変更
+![v1.3](./images/01_ecs_3tier_webapp_v1.3.png)
+
+**ポイント**
+ - ECRは3つある。（プライベート／パブリック／PublicGallery）

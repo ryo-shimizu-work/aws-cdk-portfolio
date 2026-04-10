@@ -79,7 +79,7 @@ export class ComputeConstruct extends Construct {
 
     taskDef.addContainer("AppContainer", {
       // 学習用サンプルイメージ。本番では ECR URI に差し替える
-      image: ecs.ContainerImage.fromRegistry("nginxdemos/hello"),
+      image: ecs.ContainerImage.fromRegistry("public.ecr.aws/nginx/nginx:latest"),
       portMappings: [{ containerPort: 80 }],
       environment: {
         DB_HOST: props.dbHost,
@@ -156,7 +156,7 @@ export class ComputeConstruct extends Construct {
       serviceName: `${props.envName}-service`,
       cluster,
       taskDefinition: taskDef,
-      desiredCount: 2, // 2 タスクで最低限の冗長性を確保
+      desiredCount: 1, // コスト削減のため1つに変更
       securityGroups: [props.ecsSg],
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       // デプロイ失敗時に自動ロールバックするサーキットブレーカー

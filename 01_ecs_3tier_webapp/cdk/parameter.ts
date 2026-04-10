@@ -4,4 +4,5 @@ export const parameter = {
   allowedCidr: ["<YOUR_CIDR_1>", "<YOUR_CIDR_2>"],
   hostedZone: "<YOUR_HOSTED_ZONE>",
   domainName: "01-ecs-3tier-webapp", // サブドメインだけを指定する。
+  ecrRepositoryName: "webapp",
 };

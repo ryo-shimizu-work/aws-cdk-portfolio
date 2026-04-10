@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import { NetworkConstruct } from "./constructs/network";
 import { DatabaseConstruct } from "./constructs/database";
 import { ComputeConstruct } from "./constructs/compute";
+import { EcrConstruct } from "./constructs/ecr";
 
 export interface AppStackProps extends StackProps {
   readonly envName: string;
@@ -14,6 +15,8 @@ export interface AppStackProps extends StackProps {
   readonly hostedZone: string;
   /** 設定するドメイン名（サブドメインのみ） */
   readonly domainName: string;
+  /** パブリックECRのリポジトリ名 */
+  readonly ecrRepositoryName: string;
 }
 
 /**
@@ -38,6 +41,13 @@ export class AppStack extends Stack {
       envName: props.envName,
       vpc: network.vpc,
       rdsSg: network.rdsSg,
+    });
+
+    // 本ソースコードではECR Public Galleryからイメージを取得しているため、実質的には使用していない。
+    // learning/03_cicd_ecs_pipeline の実装に入った時に転用するため作成。
+    const ecr = new EcrConstruct(this, "Ecr", {
+      envName: props.envName,
+      ecrRepositoryName: props.ecrRepositoryName,
     });
 
     const compute = new ComputeConstruct(this, "Compute", {
