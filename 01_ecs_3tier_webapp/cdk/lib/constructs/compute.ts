@@ -8,6 +8,7 @@ import * as logs from "aws-cdk-lib/aws-logs";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as route53targets from "aws-cdk-lib/aws-route53-targets";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 
 export interface ComputeProps {
   readonly envName: string;
@@ -51,7 +52,7 @@ export class ComputeConstruct extends Construct {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName(
-          "service-role/AmazonECSTaskExecutionRolePolicy"
+          "service-role/AmazonECSTaskExecutionRolePolicy",
         ),
       ],
     });
@@ -111,15 +112,33 @@ export class ComputeConstruct extends Construct {
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
     });
 
-    const listener = this.alb.addListener("HttpListener", {
-      port: 80,
-      // 本番では HTTPS リスナー + ACM 証明書を使う。HTTP は 443 にリダイレクト。
-      open: true,
-    });
-
     // Route53
     const hostedZone = route53.HostedZone.fromLookup(this, "HostedZone", {
       domainName: props.hostedZone,
+    });
+
+    // ACM
+    const certificate = new acm.Certificate(this, "Certificate", {
+      domainName: `${props.domainName}.${props.hostedZone}`,
+      validation: acm.CertificateValidation.fromDns(hostedZone),
+    });
+
+    const listener = this.alb.addListener("HttpsListener", {
+      port: 443,
+      open: true,
+      certificates: [
+        elbv2.ListenerCertificate.fromArn(certificate.certificateArn),
+      ],
+    });
+
+    this.alb.addListener("HttpListener", {
+      port: 80,
+      open: true,
+      defaultAction: elbv2.ListenerAction.redirect({
+        protocol: "HTTPS",
+        port: "443",
+        permanent: true,
+      }),
     });
 
     new route53.ARecord(this, "AliasRecord", {
@@ -146,7 +165,7 @@ export class ComputeConstruct extends Construct {
     });
 
     listener.addTargets("EcsTarget", {
-      targetGroupName: `${props.envName}-tg`,
+      // targetGroupName: `${props.envName}-tg`, // 固定名を使うと名前衝突の可能性があるため削除
       targets: [this.service],
       protocol: elbv2.ApplicationProtocol.HTTP,
       port: 80,

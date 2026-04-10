@@ -10,7 +10,7 @@ new AppStack(app, "EcsWebAppStack", {
   envName: "dev",
   env: {
     // CDK_DEFAULT_ACCOUNT / CDK_DEFAULT_REGION を使う場合は cdk bootstrap が必要
-    account: parameter.accontId,
+    account: parameter.accountId,
     region: parameter.region,
   },
   ...parameter,

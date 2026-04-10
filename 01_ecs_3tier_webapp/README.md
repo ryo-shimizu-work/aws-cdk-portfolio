@@ -42,7 +42,8 @@ ECS 3層 Web アプリ。全構成の基礎。
 **ポイント**
  - Aレコードに設定するドメインはサブドメインだけを指定すればよい。（`parameter.ts`に記載）
 
-<!-- 改造後に追加
-### v1.2 xxxxxxxxx
+### v1.2 HTTP通信のSSL化
 ![v1.2](./images/01_ecs_3tier_webapp_v1.2.png)
--->
+
+**ポイント**
+ - ACMはALBのHTTPSリスナーにアタッチする。

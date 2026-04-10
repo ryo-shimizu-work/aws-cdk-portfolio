@@ -59,6 +59,7 @@ export class NetworkConstruct extends Construct {
       this.albSg.addIngressRule(ec2.Peer.ipv4(cidr), ec2.Port.tcp(443));
       this.albSg.addIngressRule(ec2.Peer.ipv4(cidr), ec2.Port.tcp(80));
     });
+
     // ECS SG: ALB SG からのみ受け付ける (IP レンジ指定なし)
     this.ecsSg = new ec2.SecurityGroup(this, "EcsSg", {
       vpc: this.vpc,
@@ -67,7 +68,7 @@ export class NetworkConstruct extends Construct {
     });
     this.ecsSg.addIngressRule(
       ec2.Peer.securityGroupId(this.albSg.securityGroupId),
-      // ec2.Port.tcp(8080), ★実装ミス コンテナのポートマッピングが80で受け付けている
+      // ec2.Port.tcp(8080), コンテナのポートマッピングが80で受け付けているため削除
       ec2.Port.tcp(80),
       "from ALB"
     );

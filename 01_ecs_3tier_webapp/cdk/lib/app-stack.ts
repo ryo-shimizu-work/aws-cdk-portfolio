@@ -6,12 +6,14 @@ import { ComputeConstruct } from "./constructs/compute";
 
 export interface AppStackProps extends StackProps {
   readonly envName: string;
-  readonly accontId: string;
+  readonly accountId: string;
   readonly region: string;
   /** サンプルアプリへのアクセスを許可するCIDR */
-  allowedCidr: string[];
-  hostedZone: string;
-  domainName: string;
+  readonly allowedCidr: string[];
+  /** Route53で作成済のホストゾーン名 */
+  readonly hostedZone: string;
+  /** 設定するドメイン名（サブドメインのみ） */
+  readonly domainName: string;
 }
 
 /**
@@ -51,7 +53,7 @@ export class AppStack extends Stack {
 
     // デプロイ後に確認する URL
     new CfnOutput(this, "DnsName", {
-      value: `http://${props.domainName}.${props.hostedZone}`,
+      value: `https://${props.domainName}.${props.hostedZone}`,
       description: "DNS Name",
     });
   }
