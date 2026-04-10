@@ -53,3 +53,10 @@ ECS 3層 Web アプリ。全構成の基礎。
 
 **ポイント**
  - ECRは3つある。（プライベート／パブリック／PublicGallery）
+
+### v1.4 NAT Gatewayの廃止（アウトバウンド通信の閉域化）
+![v1.4](./images/01_ecs_3tier_webapp_v1.4.png)
+
+**ポイント**
+ - ECR（プライベートレジストリ）からイメージを取得するには3つのVPCエンドポイントが必要。
+ - その他、LogsとSecretsManagerがあるので、計5つのVPCエンドポイントが必要。

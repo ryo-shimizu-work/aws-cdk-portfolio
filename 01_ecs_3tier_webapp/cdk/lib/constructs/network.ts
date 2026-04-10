@@ -21,6 +21,7 @@ export class NetworkConstruct extends Construct {
   readonly albSg: ec2.SecurityGroup;
   readonly ecsSg: ec2.SecurityGroup;
   readonly rdsSg: ec2.SecurityGroup;
+  readonly vpcEndpointSg: ec2.SecurityGroup;
 
   constructor(scope: Construct, id: string, props: NetworkProps) {
     super(scope, id);
@@ -29,7 +30,7 @@ export class NetworkConstruct extends Construct {
     this.vpc = new ec2.Vpc(this, "Vpc", {
       vpcName: `${props.envName}-vpc`,
       maxAzs: 2,
-      natGateways: 1,
+      natGateways: 0, //L2コンストラクタなので、0を指定せずに削除するとPublicサブネットに勝手に作成される。
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -70,7 +71,7 @@ export class NetworkConstruct extends Construct {
       ec2.Peer.securityGroupId(this.albSg.securityGroupId),
       // ec2.Port.tcp(8080), コンテナのポートマッピングが80で受け付けているため削除
       ec2.Port.tcp(80),
-      "from ALB"
+      "from ALB",
     );
 
     // RDS SG: ECS SG からのみ受け付ける
@@ -82,7 +83,37 @@ export class NetworkConstruct extends Construct {
     this.rdsSg.addIngressRule(
       ec2.Peer.securityGroupId(this.ecsSg.securityGroupId),
       ec2.Port.tcp(5432),
-      "from ECS"
+      "from ECS",
     );
+
+    // Endpoint SG: ecr SG からのみ受け付ける
+    this.vpcEndpointSg = new ec2.SecurityGroup(this, "EndpointSg", {
+      vpc: this.vpc,
+      securityGroupName: `${props.envName}-endpoint-sg`,
+      description: "Endpoint: allow HTTPS traffic from ECS",
+    });
+    this.vpcEndpointSg.addIngressRule(
+      ec2.Peer.securityGroupId(this.ecsSg.securityGroupId),
+      ec2.Port.tcp(443),
+      "from ECS",
+    );
+
+    const endpointServices = [
+      ec2.InterfaceVpcEndpointAwsService.ECR,
+      ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER,
+      ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
+      ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
+    ];
+    endpointServices.forEach((service) => {
+      this.vpc.addInterfaceEndpoint(service.shortName, {
+        service,
+        subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+        securityGroups: [this.vpcEndpointSg],
+      });
+    });
+
+    this.vpc.addGatewayEndpoint("S3Endpoint", {
+      service: ec2.GatewayVpcEndpointAwsService.S3,
+    });
   }
 }

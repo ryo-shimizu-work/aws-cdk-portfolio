@@ -58,7 +58,8 @@ export class AppStack extends Stack {
       dbSecret: database.secret,
       dbHost: database.cluster.clusterEndpoint.hostname,
       hostedZone: props.hostedZone,
-      domainName: props.domainName
+      domainName: props.domainName,
+      ecrUri: ecr.repository.repositoryUri,
     });
 
     // デプロイ後に確認する URL

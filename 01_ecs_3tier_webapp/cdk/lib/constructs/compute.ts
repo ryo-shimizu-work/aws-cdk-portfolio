@@ -20,6 +20,7 @@ export interface ComputeProps {
   readonly dbHost: string;
   readonly hostedZone: string;
   readonly domainName: string;
+  readonly ecrUri: string;
 }
 
 /**
@@ -79,7 +80,7 @@ export class ComputeConstruct extends Construct {
 
     taskDef.addContainer("AppContainer", {
       // 学習用サンプルイメージ。本番では ECR URI に差し替える
-      image: ecs.ContainerImage.fromRegistry("public.ecr.aws/nginx/nginx:latest"),
+      image: ecs.ContainerImage.fromRegistry(props.ecrUri),
       portMappings: [{ containerPort: 80 }],
       environment: {
         DB_HOST: props.dbHost,
