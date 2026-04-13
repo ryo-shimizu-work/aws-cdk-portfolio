@@ -1,4 +1,5 @@
 import { Duration, RemovalPolicy } from "aws-cdk-lib";
+import * as path from "path";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -9,6 +10,8 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import * as route53targets from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as synthetics from "aws-cdk-lib/aws-synthetics";
+import * as s3 from "aws-cdk-lib/aws-s3";
 
 export interface ComputeProps {
   readonly envName: string;
@@ -157,7 +160,7 @@ export class ComputeConstruct extends Construct {
       serviceName: `${props.envName}-service`,
       cluster,
       taskDefinition: taskDef,
-      desiredCount: 1, // コスト削減のため1つに変更
+      desiredCount: 0, // 0にしておかないと初回デプロイ時、ECRイメージがpushされていないため、デプロイに失敗する。
       securityGroups: [props.ecsSg],
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       // デプロイ失敗時に自動ロールバックするサーキットブレーカー
@@ -178,6 +181,25 @@ export class ComputeConstruct extends Construct {
         unhealthyThresholdCount: 3,
       },
       deregistrationDelay: Duration.seconds(30),
+    });
+
+    // canary
+    const canaryBucket = new s3.Bucket(this, 'CanaryBucket', {
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+
+    new synthetics.Canary(this, 'EcsCanary', {
+      artifactsBucketLocation: { bucket: canaryBucket },
+      schedule: synthetics.Schedule.rate(Duration.minutes(5)),
+      test: synthetics.Test.custom({
+        code: synthetics.Code.fromAsset(path.join(__dirname, 'canary')),
+        handler: 'index.handler',
+      }),
+      runtime: synthetics.Runtime.SYNTHETICS_NODEJS_PUPPETEER_9_1,
+      environmentVariables: {
+        TARGET_URL: `https://${props.domainName}.${props.hostedZone}`,
+      },
     });
   }
 }

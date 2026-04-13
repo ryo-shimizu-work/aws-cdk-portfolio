@@ -60,3 +60,11 @@ ECS 3層 Web アプリ。全構成の基礎。
 **ポイント**
  - ECR（プライベートレジストリ）からイメージを取得するには3つのVPCエンドポイントが必要。
  - その他、LogsとSecretsManagerがあるので、計5つのVPCエンドポイントが必要。
+
+### v1.5 外形監視の追加（canary）
+![v1.5](./images/01_ecs_3tier_webapp_v1.5.png)
+
+**ポイント**
+ - canaryを実装する方法として、以下の２パターンがある。
+   - `synthetics.Code.fromInline() `でスクリプトを文字列として直接埋め込む方法
+   - `fromAsset` + 別ファイル管理の方法
