@@ -129,7 +129,7 @@ export class ComputeConstruct extends Construct {
 
     const listener = this.alb.addListener("HttpsListener", {
       port: 443,
-      open: true,
+      open: false,
       certificates: [
         elbv2.ListenerCertificate.fromArn(certificate.certificateArn),
       ],
@@ -137,7 +137,7 @@ export class ComputeConstruct extends Construct {
 
     this.alb.addListener("HttpListener", {
       port: 80,
-      open: true,
+      open: false,
       defaultAction: elbv2.ListenerAction.redirect({
         protocol: "HTTPS",
         port: "443",
