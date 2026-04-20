@@ -68,3 +68,11 @@ ECS 3層 Web アプリ。全構成の基礎。
  - canaryを実装する方法として、以下の２パターンがある。
    - `synthetics.Code.fromInline() `でスクリプトを文字列として直接埋め込む方法
    - `fromAsset` + 別ファイル管理の方法
+
+### v1.6 GitHub ActionsによるECRへのイメージpush
+![v1.6](./images/01_ecs_3tier_webapp_v1.6.png)
+
+**ポイント**
+ - GitHub Actions が実行されるたびに GitHub が一時トークンを発行  
+  → そのトークンで AWS に「このGitHub Actionsですよ」と証明  
+  → AWS が IAM ロールを一時的に貸し出す（有効期限あり）  
