@@ -12,6 +12,7 @@ import * as route53targets from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as synthetics from "aws-cdk-lib/aws-synthetics";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as ecr from "aws-cdk-lib/aws-ecr";
 
 export interface ComputeProps {
   readonly envName: string;
@@ -82,8 +83,11 @@ export class ComputeConstruct extends Construct {
     });
 
     taskDef.addContainer("AppContainer", {
-      // 学習用サンプルイメージ。本番では ECR URI に差し替える
-      image: ecs.ContainerImage.fromRegistry(props.ecrUri),
+      // プライベート ECR（:latest）からイメージを取得する
+      image: ecs.ContainerImage.fromEcrRepository(
+        ecr.Repository.fromRepositoryName(this, 'AppRepo', props.ecrUri.split('/').slice(-1)[0]),
+        'latest',
+      ),
       portMappings: [{ containerPort: 80 }],
       environment: {
         DB_HOST: props.dbHost,

@@ -4,6 +4,7 @@ import { NetworkConstruct } from "./constructs/network";
 import { DatabaseConstruct } from "./constructs/database";
 import { ComputeConstruct } from "./constructs/compute";
 import { EcrConstruct } from "./constructs/ecr";
+import { GitHubActionsRoleConstruct } from "./constructs/github-actions-role";
 
 export interface AppStackProps extends StackProps {
   readonly envName: string;
@@ -60,6 +61,17 @@ export class AppStack extends Stack {
       hostedZone: props.hostedZone,
       domainName: props.domainName,
       ecrUri: ecr.repository.repositoryUri,
+    });
+
+    // GitHub Actions が ECR push / ECS force-new-deployment するための OIDC ロール
+    const githubActionsRole = new GitHubActionsRoleConstruct(this, "GitHubActionsRole", {
+      repository: ecr.repository,
+      service: compute.service,
+    });
+
+    new CfnOutput(this, "GitHubActionsRoleArn", {
+      value: githubActionsRole.roleArn,
+      description: "GitHub Actions OIDC Role ARN",
     });
 
     // デプロイ後に確認する URL
