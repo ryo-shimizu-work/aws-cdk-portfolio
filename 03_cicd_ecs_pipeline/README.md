@@ -110,6 +110,23 @@ docker push <ECR_URI>:latest
 以降は `learning/03_cicd_ecs_pipeline/cdk/app/**` を変更して `main` に push するだけ。
 GitHub Actions が ECR push → CodePipeline が自動起動 → CodeDeploy Blue/Green デプロイ。
 
+## destroy 手順
+
+Blue/Green デプロイ後はリスナーの向き先が CodeDeploy によって切り替わっているため、
+`cdk destroy` 前にコンソールでリスナーを Blue TG に戻す必要がある。
+
+```bash
+# 1. EC2 コンソール → ロードバランサー → dev-pipeline-alb
+#    リスナー（ポート 80）→ デフォルトアクションを編集 → 転送先を dev-blue-tg に変更
+#    リスナー（ポート 8080）→ デフォルトアクションを編集 → 転送先を dev-green-tg に変更
+```
+
+```bash
+# 2. cdk destroy
+cd learning/03_cicd_ecs_pipeline/cdk
+npm run destroy -- --profile <PROFILE>
+```
+
 ## GitHub Secrets / Variables
 
 ### v1.0（既存）
