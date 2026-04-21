@@ -1,0 +1,21 @@
+{
+  "name": "cicd-ecs-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "deploy": "cdk deploy --all --require-approval never",
+    "destroy": "cdk destroy --all"
+  },
+  "devDependencies": {
+    "@types/node": "22.x",
+    "typescript": "~5.7.0",
+    "aws-cdk": "2.178.2"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.178.2",
+    "constructs": "^10.0.0"
+  }
+}
