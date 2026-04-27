@@ -59,7 +59,7 @@ python main.py --list-services
 ## オプション一覧
 
 | オプション | 説明 | デフォルト |
-|---|---|---|
+| --- | --- | --- |
 | `--profile` | AWS CLI profile名 | default |
 | `--regions` | 対象リージョン | 全リージョン |
 | `--services` | 対象サービス名 | 全サービス |
@@ -110,7 +110,7 @@ Markdown出力時は先頭に差分テーブルが挿入される。
 以下のリソースを自動検出し、警告セクション / Warningsシートに表示:
 
 | 検出対象 | 条件 |
-|---|---|
+| --- | --- |
 | EC2 Instances | 停止中 (EBS・EIP課金継続) |
 | EBS Volumes | 未アタッチ (available状態で課金中) |
 | Elastic IPs | 未割当 ($0.005/hr課金中) |

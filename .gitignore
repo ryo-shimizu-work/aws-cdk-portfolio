@@ -1,0 +1,32 @@
+# CDK
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+cdk.out
+.cdk.staging
+cdk.context.json
+
+# npm
+package-lock.json
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Python
+.venv/
+.cache/
+.pytest_cache/
+__pycache__/
+
+# Output
+*.xlsx
+inventory_*
